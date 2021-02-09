@@ -1,6 +1,5 @@
 package tourguide.trippricer.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -9,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import tourguide.trippricer.model.PriceDto;
 import tourguide.trippricer.service.ITripPricerService;
 import tripPricer.Provider;
 
@@ -36,8 +34,6 @@ class TripPricerControllerTests {
     @Test
     void getPriceTest() throws Exception
     {
-        PriceDto priceDto = new PriceDto("apikey",1,2,3,4, UUID.randomUUID());
-
         List<Provider> providerList = new ArrayList<>();
         providerList.add(new Provider(UUID.randomUUID(),"Provider A",25.2));
         providerList.add(new Provider(UUID.randomUUID(),"Provider B",5.8));
@@ -45,7 +41,12 @@ class TripPricerControllerTests {
         when(tripPricerService.getPrice(anyString(),any(),anyInt(),anyInt(),anyInt(),anyInt())).thenReturn(providerList);
 
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get("/price").
-                contentType(MediaType.APPLICATION_JSON).content(new ObjectMapper().writeValueAsString(priceDto));
+                contentType(MediaType.APPLICATION_JSON)
+                .param("apiKey","apiKey")
+                .param("attractionId",UUID.randomUUID().toString())
+                .param("adults","1")
+                .param("children","2").param("nightsStay","3")
+                .param("rewardsPoints","300");
 
         mockMvc.perform(builder).
                 andExpect(status().isOk()).
